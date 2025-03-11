@@ -23,4 +23,4 @@ Create Github Commit Message Automatically based on your code changes
 `com_ai` : and this will automatically create the github commit message for you based on `git diff`
 
 
-Thanks - Manish Sharma
+Thanks - Manish Sharma.
