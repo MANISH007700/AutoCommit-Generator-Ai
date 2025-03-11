@@ -21,3 +21,6 @@ Create Github Commit Message Automatically based on your code changes
 
 5 - You can run it now just by calling the bashfile from anywhere in the terminal now like this
 `com_ai` : and this will automatically create the github commit message for you based on `git diff`
+
+
+Thanks - Manish Sharma.
