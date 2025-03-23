@@ -26,7 +26,7 @@ A Python script that automatically generates concise and meaningful Git commit m
 
    ```bash
    git clone https://github.com/MANISH007700/AutoCommit-Generator-Ai.git
-   cd commit-message-generator
+   cd AutoCommit-Generator-Ai/
    ```
 
 2. Install dependencies:
