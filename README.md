@@ -1,3 +1,6 @@
+
+<img width="283" alt="image" src="https://github.com/user-attachments/assets/e1aa67cb-d401-49e2-b679-e8d90e6de3e6" />
+
 # Commit Message Generator
 
 A Python script that automatically generates concise and meaningful Git commit messages based on staged changes using the Ollama API [Default-**Mistral**, you can use any].
