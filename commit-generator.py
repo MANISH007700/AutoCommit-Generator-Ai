@@ -3,11 +3,13 @@ import subprocess
 import sys
 
 import requests
+from loguru import logger  # Added loguru for logging
 
 
 class CommitMessageGenerator:
     def __init__(self):
         self.ollama_url = "http://localhost:11434/api/generate"
+        logger.info("CommitMessageGenerator initialized.")
 
     def get_git_diff(self):
         """Get the git diff of staged changes"""
@@ -15,25 +17,22 @@ class CommitMessageGenerator:
             result = subprocess.run(
                 ["git", "diff", "--cached"], capture_output=True, text=True
             )
-            if result.returncode != 0:
-                print("Error: Failed to get git diff")
-                sys.exit(1)
+            result.check_returncode()  # Simplified error handling
+            logger.debug("Successfully retrieved git diff.")
             return result.stdout
         except subprocess.CalledProcessError as e:
-            print(f"Error executing git diff: {e}")
+            logger.error(f"Error executing git diff: {e}")
             sys.exit(1)
 
     def generate_commit_message(self, diff):
         """Generate commit message using Ollama"""
-        prompt = f"""Given the following git diff, craft a concise commit message that:
-            - Starts with a verb
-            - Is specific
-            - Remains under 72 characters
-
-            Diff:
-            {diff}
-
-            Commit message:"""
+        prompt = (
+            "Given the following git diff, craft a concise commit message that:\n"
+            " - Starts with a verb\n"
+            " - Is specific\n"
+            " - Remains under 72 characters\n\n"
+            f"Diff:\n{diff}\n\nCommit message:"
+        )
 
         try:
             response = requests.post(
@@ -41,12 +40,14 @@ class CommitMessageGenerator:
                 json={"model": "mistral", "prompt": prompt, "stream": False},
             )
             response.raise_for_status()
-            message = response.json()["response"].strip()
-            # Take only the first line
-            return message.split("\n")[0]
+            message = (
+                response.json()["response"].strip().split("\n")[0]
+            )  # Take only the first line
+            logger.debug("Generated commit message.")
+            return message
         except requests.exceptions.RequestException as e:
-            print(f"Error calling Ollama: {e}")
-            print("Make sure Ollama is installed and running (ollama serve)")
+            logger.error(f"Error calling Ollama: {e}")
+            logger.error("Make sure Ollama is installed and running (ollama serve)")
             sys.exit(1)
 
     def commit_changes(self, message):
@@ -55,31 +56,29 @@ class CommitMessageGenerator:
             result = subprocess.run(
                 ["git", "commit", "-m", message], capture_output=True, text=True
             )
-            if result.returncode == 0:
-                print("Successfully committed changes!")
-                return True
-            else:
-                print(f"Error committing changes: {result.stderr}")
-                return False
+            result.check_returncode()  # Simplified error handling
+            logger.info("Successfully committed changes!")
+            return True
         except subprocess.CalledProcessError as e:
-            print(f"Error executing git commit: {e}")
+            logger.error(f"Error executing git commit: {e}")
             return False
 
 
 def main():
+    logger.info("Starting commit message generation process.")
     generator = CommitMessageGenerator()
 
     # Get git diff
     diff = generator.get_git_diff()
     if not diff:
-        print("No staged changes found. Run 'git add' first.")
+        logger.warning("No staged changes found. Run 'git add' first.")
         sys.exit(1)
 
     # Generate commit message
     suggested_message = generator.generate_commit_message(diff)
 
     # Ask user to accept or modify
-    print(f"\nSuggested commit message: {suggested_message}")
+    logger.info(f"Suggested commit message: {suggested_message}")
     user_input = input("\nPress Enter to accept, or type a new message: ").strip()
 
     # Use user's message if provided, otherwise use generated message
@@ -87,7 +86,7 @@ def main():
 
     # Commit changes
     if generator.commit_changes(final_message):
-        print("\nReady to push! Use 'git push origin' to push your changes.")
+        logger.info("Ready to push! Use 'git push origin' to push your changes.")
 
 
 if __name__ == "__main__":
