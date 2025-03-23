@@ -50,7 +50,7 @@ A Python script that automatically generates concise and meaningful Git commit m
 
 ```bash
 >> git add .
->> com_ai
+>> bash com_ai
 INFO: Suggested commit message: "Update README with installation steps"
 
 Press Enter to accept, or type a new message:
@@ -59,6 +59,8 @@ INFO: Ready to push! Use 'git push origin' to push your changes.
 ```
 
 ## How It Works
+
+#### Twitter Demo Video - https://x.com/lucifer_x007/status/1885757245184458870
 
 1. Retrieves the git diff of staged changes
 2. Sends the diff to Ollama API with a prompt for a commit message
